@@ -5,7 +5,9 @@
 
 class CurlComponents {
 	public:
-		CURL* handle;
+		#ifndef __vita__
+			CURL* handle;
+		#endif
 
 		CurlComponents();
 		void        Init();

@@ -30,6 +30,50 @@ void InventoryScreen::HandleEvent(SDL_Event event) {
 			mousePosition.y = event.motion.y;
 			break;
 		}
+		case SDL_FINGERMOTION: {
+			mousePosition.x = event.tfinger.x * APP_SCREEN_SIZE_W;
+			mousePosition.y = event.tfinger.y * APP_SCREEN_SIZE_H;
+			break;
+		}
+		case SDL_FINGERDOWN: {
+			mousePressed = true;
+			break;
+		}
+		case SDL_FINGERUP: {
+			mousePressed = false;
+			if (mouseHoveringOver.x != -1) {
+				if (isItemSelected) {
+					isItemSelected = false;
+					auto item = inventory->inventory[oldPos.y][oldPos.x];
+					if (
+						!inventory->inventory
+						[mouseHoveringOver.y][mouseHoveringOver.x].empty
+					) {
+						inventory->inventory[oldPos.y][oldPos.x] =
+							inventory->inventory[mouseHoveringOver.y][mouseHoveringOver.x];
+					}
+					else {
+						inventory->inventory[oldPos.y][oldPos.x] = {true, 0, 0};
+					}
+					inventory->inventory[mouseHoveringOver.y][mouseHoveringOver.x] =
+						item;
+				}
+				else {
+					if (
+						inventory->inventory[mouseHoveringOver.y][mouseHoveringOver.x]
+						.empty
+					) {
+						break;
+					}
+					isItemSelected = true;
+					selectedItem   = {
+						(uint32_t) mouseHoveringOver.x, (uint32_t) mouseHoveringOver.y
+					};
+					oldPos         = mouseHoveringOver;
+				}
+			}
+			break;
+		}
 		case SDL_MOUSEBUTTONDOWN: {
 			if (event.button.button == SDL_BUTTON_LEFT) {
 				mousePressed = true;

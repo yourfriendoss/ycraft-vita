@@ -40,6 +40,7 @@ class Game {
 		App*                   app;
 		CommandsSystem         commands;
 		Particles::Manager     particles;
+		int 				   heldDownFor;
 
 		Menus::PauseMenu pauseMenu;
 		InventoryScreen  inventoryScreen;
@@ -50,7 +51,7 @@ class Game {
 		void SpawnPlayer();
 		void Deinit();
 		void Update(AppState& state);
-		void HandleEvent(SDL_Event& event);
+		void HandleEvent(App* app, SDL_Event& event);
 		void UpdateCamera();
 		void HandleInput(const Uint8* keystate, double delta);
 		void Render();

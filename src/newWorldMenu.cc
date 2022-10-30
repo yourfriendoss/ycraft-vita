@@ -136,6 +136,19 @@ void Menus::NewWorldMenu::HandleEvent(SDL_Event& event) {
 			}
 			break;
 		}
+		case SDL_FINGERMOTION: {
+			mousePosition.x = event.tfinger.x * APP_SCREEN_SIZE_W;
+			mousePosition.y = event.tfinger.y * APP_SCREEN_SIZE_H;
+            break;
+        }
+        case SDL_FINGERDOWN: {
+            mousePressed = true; 
+            break;
+        }
+        case SDL_FINGERUP: {
+            mousePressed = false;
+            break;
+        }
 		default: {
 			if (worldName.focused) {
 				worldName.HandleEvent(event);

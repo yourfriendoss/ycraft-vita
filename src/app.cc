@@ -16,6 +16,10 @@ App::App():
 		Util::Error(APP_NAME " can't run on your system");
 	}
 	
+	if (!FS::Directory::Exists(gameFolder)) {
+		FS::Directory::Create(gameFolder);
+	}
+
 	deltaLast  = 0;
 	deltaNow   = SDL_GetPerformanceCounter();
 	state      = AppState::TitleScreen;
@@ -100,7 +104,7 @@ void App::Update() {
 			default: {
 				switch (state) {
 					case AppState::InGame: {
-						game.HandleEvent(event);
+						game.HandleEvent(this, event);
 						break;
 					}
 					case AppState::TitleScreen: {
@@ -135,7 +139,7 @@ void App::Update() {
 	switch (state) {
 		case AppState::InGame: {
 			game.Update(state);
-		
+
 			const Uint8* keystate = SDL_GetKeyboardState(nullptr);
 			game.HandleInput(keystate, deltaTime);
 			break;			

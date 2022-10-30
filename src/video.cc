@@ -1,16 +1,25 @@
 #include "video.hh"
 #include "constants.hh"
 #include "util.hh"
+#include "game.hh"
 
 void VideoComponents::Init() {
-	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
+	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_JOYSTICK ) < 0) {
 		Util::Error("Failed to initialise SDL: %s\n", SDL_GetError());
 	}
+
+    SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl");
+    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
+
+	#ifdef __vita__
+		// VITA: The psvita does not generate mouse events
+		SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS, "0");
+	#endif
 
 	window = SDL_CreateWindow(
 		(std::string(APP_NAME) + " " + APP_VERSION).c_str(),
 		SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-		640, 480,
+		APP_SCREEN_SIZE_W, APP_SCREEN_SIZE_H,
 		SDL_WINDOW_RESIZABLE
 	);
 
@@ -22,6 +31,15 @@ void VideoComponents::Init() {
 	renderer = SDL_CreateRenderer(
 		window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC
 	);
+	
+    if(SDL_NumJoysticks() > 1) { // VITA: .. Why is this here?
+		SDL_Joystick* gGameController = SDL_JoystickOpen(0);
+		if( gGameController == NULL ) {
+			SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "SDL Error", "Warning: Unable to open game controller! ", nullptr);
+		} else {
+			SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "Yipee!", "Joystick loaded sucesfully!", nullptr);
+		}
+	}
 
 	if (renderer == nullptr) {
 		Util::Error("Failed to create renderer: %s", SDL_GetError());
@@ -35,18 +53,4 @@ void VideoComponents::Init() {
 void VideoComponents::Free() {
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
-}
-
-void VideoComponents::DrawTriangle(
-	FVec2 point1, FVec2 point2, FVec2 point3, SDL_Color colour
-) {
-	#ifndef DISABLE_TRIANGLES
-		std::vector <SDL_Vertex> verts = {
-			{SDL_FPoint{point1.x, point1.y}, colour, SDL_FPoint{0}},
-			{SDL_FPoint{point2.x, point2.y}, colour, SDL_FPoint{0}},
-			{SDL_FPoint{point3.x, point3.y}, colour, SDL_FPoint{0}}
-		};
-
-		SDL_RenderGeometry(renderer, nullptr, verts.data(), verts.size(), nullptr, 0);
-	#endif
 }

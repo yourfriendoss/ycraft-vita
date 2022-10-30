@@ -30,10 +30,10 @@ CXXFLAGS += -O0 -g
 endif
 
 ifeq (${platform}, windows)
-	CXXFLAGS += -I./sdl2/x86_64-w64-mingw32/include/ -Dmain=SDL_main \
-				-I./curl/include/curl
+	CXXFLAGS += -I./sdl2/x86_64-w64-mingw32/include/ -Dmain=SDL_main
 else
-	CXXFLAGS += -I/usr/include/curl
+	CXXFLAGS += $(shell sdl2-config --cflags)
+	CXXFLAGS += $(shell pkg-config libcurl --cflags)
 endif
 
 ifeq (${debug}, on)
@@ -45,10 +45,6 @@ ifeq (${platform}, windows)
 				-L./sdl2image/x86_64-w64-mingw32/lib \
 				-L./sdl2ttf/x86_64-w64-mingw32/lib \
 				-L./curl/lib -lmingw32 -static-libgcc -static-libstdc++
-endif
-
-ifeq (${triangles}, off)
-	CXXFLAGS += -DDISABLE_TRIANGLES
 endif
 
 CXXLIBS += -lSDL2main -lSDL2 -lSDL2_ttf -lSDL2_image -lSDL2_mixer -lm -lcurl

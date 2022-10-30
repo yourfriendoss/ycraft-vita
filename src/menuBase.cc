@@ -1,4 +1,5 @@
 #include "menuBase.hh"
+#include "constants.hh"
 
 MenuBase::MenuBase():
 	mousePosition{0, 0},
@@ -20,6 +21,19 @@ void MenuBase::HandleEvent(SDL_Event& event) {
 			}
 			break;
 		}
+		case SDL_FINGERMOTION: {
+			mousePosition.x = event.tfinger.x * APP_SCREEN_SIZE_W;
+			mousePosition.y = event.tfinger.y * APP_SCREEN_SIZE_H;
+            break;
+        }
+        case SDL_FINGERDOWN: {
+            mousePressed = true; 
+			break;
+        }
+        case SDL_FINGERUP: {
+            mousePressed = false;
+			break;
+        }
 		case SDL_MOUSEBUTTONUP: {
 			if (event.button.button == SDL_BUTTON_LEFT) {
 				mousePressed = false;

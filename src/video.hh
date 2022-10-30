@@ -14,7 +14,6 @@ class VideoComponents {
 		// functions
 		VideoComponents() {}
 		void Init();
-		void DrawTriangle(FVec2 point1, FVec2 point2, FVec2 point3, SDL_Color colour);
 		void Free();
 };
 

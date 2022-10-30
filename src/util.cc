@@ -50,6 +50,9 @@ void Util::Log(const char* format, ...) { // most of this is taken from vsprintf
 
 std::string Util::GetExecutableLocation() {
 	char buffer[1024];
+	#ifdef __vita__
+		return "ux0:/data/ycraft/";
+	#endif
 	#if defined(PLATFORM_LINUX)
 		ssize_t len = readlink("/proc/self/exe", buffer, sizeof(buffer));
 		if (len != -1) {
@@ -66,6 +69,7 @@ std::string Util::GetExecutableLocation() {
 		return std::string(buffer);
 	#endif
 	
+
 	return "";
 }
 

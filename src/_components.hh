@@ -37,13 +37,13 @@
 #include <filesystem>
 #include <unordered_map>
 
-// C libraries
+#ifndef __vita__
+	#include <curl/curl.h>
+#endif
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_mixer.h>
-#include <curl.h>
-
 // types
 typedef uint16_t blockID_t;
 typedef uint16_t itemID_t;

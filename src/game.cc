@@ -17,7 +17,14 @@ void Game::Init(UVec2 levelSize, bool generate) {
 	blockdefs.Create(3, "Grass",  0,  BlockType::Solid);
 	blockdefs.Create(4, "Bricks", 12, BlockType::Solid);
 	blockdefs.Create(5, "Cobble", 5,  BlockType::Solid);
-
+	#ifdef __vita__
+		SDL_GameControllerAddMapping("50535669746120436f6e74726f6c6c65,PSVita Controller,y:b0,b:b1,a:b2,x:b3,leftshoulder:b4,rightshoulder:b5,dpdown:b6,dpleft:b7,dpup:b8,dpright:b9,back:b10,start:b11,leftx:a0,lefty:a1,rightx:a2,righty:a3,");
+		SDL_GameControllerAddMapping("50535669746120636f6e74726f6c6c65,PSVita controller,y:b0,b:b1,a:b2,x:b3,leftshoulder:b4,rightshoulder:b5,dpdown:b6,dpleft:b7,dpup:b8,dpright:b9,back:b10,start:b11,leftx:a0,lefty:a1,rightx:a2,righty:a3,");
+		SDL_GameControllerAddMapping("50535669746120636f6e74726f6c6c65,PSVita controller 2,y:b0,b:b1,a:b2,x:b3,leftshoulder:b4,rightshoulder:b5,dpdown:b6,dpleft:b7,dpup:b8,dpright:b9,back:b10,start:b11,leftx:a0,lefty:a1,rightx:a2,righty:a3,");
+		SDL_GameControllerAddMapping("50535669746120636f6e74726f6c6c65,PSVita controller 3,y:b0,b:b1,a:b2,x:b3,leftshoulder:b4,rightshoulder:b5,dpdown:b6,dpleft:b7,dpup:b8,dpright:b9,back:b10,start:b11,leftx:a0,lefty:a1,rightx:a2,righty:a3,");
+		SDL_GameControllerAddMapping("50535669746120636f6e74726f6c6c65,PSVita controller 4,y:b0,b:b1,a:b2,x:b3,leftshoulder:b4,rightshoulder:b5,dpdown:b6,dpleft:b7,dpup:b8,dpright:b9,back:b10,start:b11,leftx:a0,lefty:a1,rightx:a2,righty:a3,");
+		SDL_GameControllerAddMapping("505356697461206275696c74696e206a,PSVita builtin joypad,y:b0,b:b1,a:b2,x:b3,leftshoulder:b4,rightshoulder:b5,dpdown:b6,dpleft:b7,dpup:b8,dpright:b9,back:b10,start:b11,leftx:a0,lefty:a1,rightx:a2,righty:a3,");
+	#endif
 	/*camera.x = 0;
 	camera.y = 0;
 	
@@ -98,7 +105,7 @@ void Game::Update(AppState& state) {
 	}
 }
 
-void Game::HandleEvent(SDL_Event& event) {
+void Game::HandleEvent(App* app, SDL_Event& event) {
 	switch (gameState) {
 		case GameState::Paused: {
 			pauseMenu.HandleEvent(event);
@@ -109,6 +116,12 @@ void Game::HandleEvent(SDL_Event& event) {
 				case SDL_MOUSEMOTION: {
 					mousePosition.x = event.motion.x;
 					mousePosition.y = event.motion.y;
+					break;
+				}
+				case SDL_FINGERMOTION: {
+					heldDownFor++;
+					mousePosition.x = event.tfinger.x * APP_SCREEN_SIZE_W;
+					mousePosition.y = event.tfinger.y * APP_SCREEN_SIZE_H;
 					break;
 				}
 				case SDL_MOUSEBUTTONDOWN: {
@@ -124,6 +137,19 @@ void Game::HandleEvent(SDL_Event& event) {
 						}
 					}
 					break;
+				}
+				case SDL_FINGERDOWN: {
+					mouseDown = true;
+				}
+				case SDL_FINGERUP: {
+					mouseDown = false;
+					if(heldDownFor > 100) {
+						DeleteBlock();
+					} else {
+						PlaceBlock();
+					}
+					
+					heldDownFor = 0;
 				}
 				case SDL_MOUSEBUTTONUP: {
 					mouseDown =
@@ -167,6 +193,44 @@ void Game::HandleEvent(SDL_Event& event) {
 				        default: break;
 				    }
 				    break;
+				}
+				case SDL_JOYAXISMOTION: {
+						SDL_ShowSimpleMessageBox(
+							SDL_MESSAGEBOX_INFORMATION, "breaking bad puerto rico",
+							"walttuh we recieved joystick event", nullptr
+						);
+						
+						if(event.jaxis.which == 0)  {                     
+						int xDir, yDir;   
+						player.Reset();
+						if(event.jaxis.axis == 0 ) {
+							// __vita___ deadzone of 8k
+							if(event.jaxis.value < -8000) {
+								player.GoRight(app->deltaTime, GAME_PLAYER_SPEED, level, blockdefs);
+								player.EdgeCollision(level);
+								UpdateCamera();
+							}
+							else if(event.jaxis.value > 8000) {
+								player.GoLeft(app->deltaTime, GAME_PLAYER_SPEED, level, blockdefs);
+								player.EdgeCollision(level);
+								UpdateCamera();
+							} else {
+								xDir = 0;
+							}
+						} else if(event.jaxis.axis == 1) {
+							if(event.jaxis.value < -8000) {
+								player.GoDown(app->deltaTime, GAME_PLAYER_SPEED, level, blockdefs);
+								player.EdgeCollision(level);
+								UpdateCamera();
+							} else if( event.jaxis.value > 8000) {
+								player.GoUp(app->deltaTime, GAME_PLAYER_SPEED, level, blockdefs);
+								player.EdgeCollision(level);
+								UpdateCamera();
+							} else {
+								yDir = 0;
+							}
+						}
+					}
 				}
 			}
 			break;
@@ -330,46 +394,6 @@ void Game::Render() {
 						GAME_BLOCK_SIZE, GAME_BLOCK_SIZE
 					};
 					SDL_RenderFillRect(app->video.renderer, &shadow);
-					if (
-						(j == 0) ||
-						(
-							blockdefs.defs[level.layers[0].front[i][j - 1]].type ==
-							BlockType::Gas
-						)
-					) {
-						app->video.DrawTriangle(
-							{(float) block.x, (float) block.y + GAME_BLOCK_SIZE},
-							{
-								(float) block.x + GAME_SHADOW_OFFSET,
-								(float) block.y + GAME_BLOCK_SIZE
-							},
-							{
-								(float) block.x + GAME_SHADOW_OFFSET,
-								(float) block.y + GAME_BLOCK_SIZE + GAME_SHADOW_OFFSET
-							},
-							Colours::transparentBlack
-						);
-					}
-					if (
-						(i == 0) ||
-						(
-							blockdefs.defs[level.layers[0].front[i - 1][j]].type ==
-							BlockType::Gas
-						)
-					) {
-						app->video.DrawTriangle(
-							{(float) block.x + GAME_BLOCK_SIZE, (float) block.y},
-							{
-								(float) block.x + GAME_BLOCK_SIZE,
-								(float) block.y + GAME_SHADOW_OFFSET
-							},
-							{
-								(float) block.x + GAME_BLOCK_SIZE + GAME_SHADOW_OFFSET,
-								(float) block.y + GAME_SHADOW_OFFSET
-							},
-							Colours::transparentBlack
-						);
-					}
 					// render texture
 					app->gameTextures.RenderTile(
 						app->video.renderer,
