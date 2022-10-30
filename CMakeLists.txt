@@ -18,41 +18,10 @@ set(VITA_VERSION  "01.00")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -std=gnu17")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -std=c++17")
 FIND_PACKAGE(SDL2)
-add_executable(${PROJECT_NAME}
-    src/ui.cc
-    src/particles.cc
-    src/chat.cc
-    src/level.cc
-    src/app.cc
-    src/animation.cc
-    src/commands.cc
-    src/game.cc
-    src/audio.cc
-    src/settings.cc
-    src/newWorldMenu.cc
-    src/text.cc
-    src/titleScreen.cc
-    src/bits.cc
-    src/properties.cc
-    src/menuBase.cc
-    src/worldMenu.cc
-    src/texturePackSelectorMenu.cc
-    src/fs.cc
-    src/util.cc
-    src/collision.cc
-    src/blockdefs.cc
-    src/pauseMenu.cc
-    src/creditsScreen.cc
-    src/curl.cc
-    src/settingsMenu.cc
-    src/inventory.cc
-    src/player.cc
-    src/image.cc
-    src/video.cc
-    src/tiles.cc
-    src/inventoryScreen.cc
-    src/main.cc
-)
+
+file(GLOB ycraft_src CONFIGURE_DEPENDS "src/*.cc")
+add_executable(${PROJECT_NAME} ${ycraft_src})
+
 
 target_link_libraries(${PROJECT_NAME}
     SDL2_mixer
