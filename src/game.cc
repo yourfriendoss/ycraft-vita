@@ -195,39 +195,22 @@ void Game::HandleEvent(App* app, SDL_Event& event) {
 				    break;
 				}
 				case SDL_JOYAXISMOTION: {
-						SDL_ShowSimpleMessageBox(
-							SDL_MESSAGEBOX_INFORMATION, "breaking bad puerto rico",
-							"walttuh we recieved joystick event", nullptr
-						);
-						
-						if(event.jaxis.which == 0)  {                     
-						int xDir, yDir;   
-						player.Reset();
+					if(event.jaxis.which == 0) {
 						if(event.jaxis.axis == 0 ) {
-							// __vita___ deadzone of 8k
-							if(event.jaxis.value < -8000) {
-								player.GoRight(app->deltaTime, GAME_PLAYER_SPEED, level, blockdefs);
-								player.EdgeCollision(level);
-								UpdateCamera();
-							}
-							else if(event.jaxis.value > 8000) {
-								player.GoLeft(app->deltaTime, GAME_PLAYER_SPEED, level, blockdefs);
-								player.EdgeCollision(level);
-								UpdateCamera();
+							if(event.jaxis.value < -4000) {
+								xHeldDown = -1;
+							} else if(event.jaxis.value > 4000) {
+								xHeldDown = 1;
 							} else {
-								xDir = 0;
+								xHeldDown = 0;
 							}
 						} else if(event.jaxis.axis == 1) {
-							if(event.jaxis.value < -8000) {
-								player.GoDown(app->deltaTime, GAME_PLAYER_SPEED, level, blockdefs);
-								player.EdgeCollision(level);
-								UpdateCamera();
-							} else if( event.jaxis.value > 8000) {
-								player.GoUp(app->deltaTime, GAME_PLAYER_SPEED, level, blockdefs);
-								player.EdgeCollision(level);
-								UpdateCamera();
+							if(event.jaxis.value < -4000) {
+								yHeldDown = -1;
+							} else if( event.jaxis.value > 4000) {
+								yHeldDown = 1;
 							} else {
-								yDir = 0;
+								yHeldDown = 0;
 							}
 						}
 					}
@@ -301,6 +284,7 @@ void Game::HandleInput(const Uint8* keystate, double delta) {
 	if (gameState != GameState::Running) {
 		return;
 	}
+
 	double multiplier =
 		keystate[SDL_SCANCODE_LSHIFT]?
 			GAME_PLAYER_FAST_SPEED : keystate[SDL_SCANCODE_RSHIFT]?
@@ -324,6 +308,26 @@ void Game::HandleInput(const Uint8* keystate, double delta) {
 	}
 	if (keystate[SDL_SCANCODE_D]) {
 		player.GoRight(delta, multiplier, level, blockdefs);
+		player.EdgeCollision(level);
+		UpdateCamera();
+	}
+	if(yHeldDown == -1) {
+		player.GoUp(app->deltaTime, GAME_PLAYER_SPEED, level, blockdefs);
+		player.EdgeCollision(level);
+		UpdateCamera();
+	}
+	if(yHeldDown == 1) {
+		player.GoDown(app->deltaTime, GAME_PLAYER_SPEED, level, blockdefs);
+		player.EdgeCollision(level);
+		UpdateCamera();
+	}
+	if(xHeldDown == 1) {
+		player.GoRight(app->deltaTime, GAME_PLAYER_SPEED, level, blockdefs);
+		player.EdgeCollision(level);
+		UpdateCamera();
+	}
+	if(xHeldDown == -1) {
+		player.GoLeft(app->deltaTime, GAME_PLAYER_SPEED, level, blockdefs);
 		player.EdgeCollision(level);
 		UpdateCamera();
 	}

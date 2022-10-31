@@ -42,9 +42,12 @@ class Game {
 		Particles::Manager     particles;
 		int 				   heldDownFor;
 
-		Menus::PauseMenu pauseMenu;
-		InventoryScreen  inventoryScreen;
-
+		Menus::PauseMenu       pauseMenu;
+		InventoryScreen        inventoryScreen;
+		
+		int  		 		   xHeldDown;
+		int  		 		   yHeldDown;
+			
 		// functions
 		Game();
 		void Init(UVec2 levelSize, bool generate);
