@@ -104,7 +104,7 @@ void App::Update() {
 			default: {
 				switch (state) {
 					case AppState::InGame: {
-						game.HandleEvent(this, event);
+						game.HandleEvent(event);
 						break;
 					}
 					case AppState::TitleScreen: {

@@ -17,6 +17,21 @@ void Game::Init(UVec2 levelSize, bool generate) {
 	blockdefs.Create(3, "Grass",  0,  BlockType::Solid);
 	blockdefs.Create(4, "Bricks", 12, BlockType::Solid);
 	blockdefs.Create(5, "Cobble", 5,  BlockType::Solid);
+
+	if(SDL_NumJoysticks() != 0) {
+	    if(SDL_IsGameController(0)) {
+			gameController = SDL_GameControllerOpen(0); 
+
+			if(gameController == NULL) {
+				SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "SDL Error", "Warning: Unable to open game controller! ", nullptr);
+			} else {
+				Util::Log("You are using a controller.");
+			}
+		} else {
+			SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "SDL Error", "Warning: Game joystick 0 is not a controller!", nullptr);
+		}
+	}
+
 	#ifdef __vita__
 		SDL_GameControllerAddMapping("50535669746120436f6e74726f6c6c65,PSVita Controller,y:b0,b:b1,a:b2,x:b3,leftshoulder:b4,rightshoulder:b5,dpdown:b6,dpleft:b7,dpup:b8,dpright:b9,back:b10,start:b11,leftx:a0,lefty:a1,rightx:a2,righty:a3,");
 		SDL_GameControllerAddMapping("50535669746120636f6e74726f6c6c65,PSVita controller,y:b0,b:b1,a:b2,x:b3,leftshoulder:b4,rightshoulder:b5,dpdown:b6,dpleft:b7,dpup:b8,dpright:b9,back:b10,start:b11,leftx:a0,lefty:a1,rightx:a2,righty:a3,");
@@ -25,6 +40,7 @@ void Game::Init(UVec2 levelSize, bool generate) {
 		SDL_GameControllerAddMapping("50535669746120636f6e74726f6c6c65,PSVita controller 4,y:b0,b:b1,a:b2,x:b3,leftshoulder:b4,rightshoulder:b5,dpdown:b6,dpleft:b7,dpup:b8,dpright:b9,back:b10,start:b11,leftx:a0,lefty:a1,rightx:a2,righty:a3,");
 		SDL_GameControllerAddMapping("505356697461206275696c74696e206a,PSVita builtin joypad,y:b0,b:b1,a:b2,x:b3,leftshoulder:b4,rightshoulder:b5,dpdown:b6,dpleft:b7,dpup:b8,dpright:b9,back:b10,start:b11,leftx:a0,lefty:a1,rightx:a2,righty:a3,");
 	#endif
+
 	/*camera.x = 0;
 	camera.y = 0;
 	
@@ -105,7 +121,28 @@ void Game::Update(AppState& state) {
 	}
 }
 
-void Game::HandleEvent(App* app, SDL_Event& event) {
+void Game::HandleEvent(SDL_Event& event) {
+	if(gameController) {
+		if(SDL_GameControllerGetButton(gameController, SDL_CONTROLLER_BUTTON_START) == 1) {
+			if(gameState == GameState::Paused) {
+				gameState = GameState::Running;
+				SDL_ShowCursor(SDL_DISABLE);
+			} else {
+				gameState = GameState::Paused;
+				SDL_ShowCursor(SDL_ENABLE);
+			}
+		}
+		if(SDL_GameControllerGetButton(gameController, SDL_CONTROLLER_BUTTON_Y) == 1) {
+			if(gameState == GameState::Inventory) {
+				gameState = GameState::Running;
+				SDL_ShowCursor(SDL_DISABLE);
+			} else {
+				gameState = GameState::Inventory;
+				SDL_ShowCursor(SDL_ENABLE);
+			}
+		}
+	}
+
 	switch (gameState) {
 		case GameState::Paused: {
 			pauseMenu.HandleEvent(event);

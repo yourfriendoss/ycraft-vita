@@ -31,20 +31,6 @@ void VideoComponents::Init() {
 	renderer = SDL_CreateRenderer(
 		window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC
 	);
-	
-    if(SDL_NumJoysticks() != 0) {
-	    if(SDL_IsGameController(0)) {
-			SDL_GameController* controller = SDL_GameControllerOpen(0); 
-
-			if(controller == NULL) {
-				SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "SDL Error", "Warning: Unable to open game controller! ", nullptr);
-			} else {
-				Util::Log("You are using a controller.");
-			}
-		} else {
-			SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "SDL Error", "Warning: Game joystick 0 is not a controller!", nullptr);
-		}
-	}
 
 	if (renderer == nullptr) {
 		Util::Error("Failed to create renderer: %s", SDL_GetError());

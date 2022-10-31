@@ -45,6 +45,7 @@ class Game {
 		Menus::PauseMenu       pauseMenu;
 		InventoryScreen        inventoryScreen;
 		
+		SDL_GameController *   gameController;
 		int  		 		   xHeldDown;
 		int  		 		   yHeldDown;
 			
@@ -54,7 +55,7 @@ class Game {
 		void SpawnPlayer();
 		void Deinit();
 		void Update(AppState& state);
-		void HandleEvent(App* app, SDL_Event& event);
+		void HandleEvent(SDL_Event& event);
 		void UpdateCamera();
 		void HandleInput(const Uint8* keystate, double delta);
 		void Render();
