@@ -156,6 +156,9 @@ void Game::HandleEvent(SDL_Event& event) {
 					break;
 				}
 				case SDL_FINGERMOTION: {
+					#ifdef __vita__
+						if(event.tfinger.touchId != 0) return;
+					#endif
 					heldDownFor++;
 					mousePosition.x = event.tfinger.x * APP_SCREEN_SIZE_W;
 					mousePosition.y = event.tfinger.y * APP_SCREEN_SIZE_H;
@@ -176,9 +179,15 @@ void Game::HandleEvent(SDL_Event& event) {
 					break;
 				}
 				case SDL_FINGERDOWN: {
+					#ifdef __vita__
+						if(event.tfinger.touchId != 0) return;
+					#endif
 					mouseDown = true;
 				}
 				case SDL_FINGERUP: {
+					#ifdef __vita__
+						if(event.tfinger.touchId != 0) return;
+					#endif
 					mouseDown = false;
 					if(heldDownFor > 100) {
 						DeleteBlock();

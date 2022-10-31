@@ -22,15 +22,24 @@ void MenuBase::HandleEvent(SDL_Event& event) {
 			break;
 		}
 		case SDL_FINGERMOTION: {
+			#ifdef __vita__
+				if(event.tfinger.touchId != 0) return;
+			#endif
 			mousePosition.x = event.tfinger.x * APP_SCREEN_SIZE_W;
 			mousePosition.y = event.tfinger.y * APP_SCREEN_SIZE_H;
             break;
         }
         case SDL_FINGERDOWN: {
+			#ifdef __vita__
+				if(event.tfinger.touchId != 0) return;
+			#endif
             mousePressed = true; 
 			break;
         }
         case SDL_FINGERUP: {
+			#ifdef __vita__
+				if(event.tfinger.touchId != 0) return;
+			#endif
             mousePressed = false;
 			break;
         }
