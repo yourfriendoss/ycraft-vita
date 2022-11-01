@@ -46,8 +46,8 @@ class Game {
 		InventoryScreen        inventoryScreen;
 		
 		SDL_GameController *   gameController;
-		int  		 		   xHeldDown;
-		int  		 		   yHeldDown;
+		int  		 		   xHeldDown = 0;
+		int  		 		   yHeldDown = 0;
 			
 		// functions
 		Game();

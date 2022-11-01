@@ -32,14 +32,9 @@ void Game::Init(UVec2 levelSize, bool generate) {
 		}
 	}
 
-	#ifdef __vita__
-		SDL_GameControllerAddMapping("50535669746120436f6e74726f6c6c65,PSVita Controller,y:b0,b:b1,a:b2,x:b3,leftshoulder:b4,rightshoulder:b5,dpdown:b6,dpleft:b7,dpup:b8,dpright:b9,back:b10,start:b11,leftx:a0,lefty:a1,rightx:a2,righty:a3,");
-		SDL_GameControllerAddMapping("50535669746120636f6e74726f6c6c65,PSVita controller,y:b0,b:b1,a:b2,x:b3,leftshoulder:b4,rightshoulder:b5,dpdown:b6,dpleft:b7,dpup:b8,dpright:b9,back:b10,start:b11,leftx:a0,lefty:a1,rightx:a2,righty:a3,");
-		SDL_GameControllerAddMapping("50535669746120636f6e74726f6c6c65,PSVita controller 2,y:b0,b:b1,a:b2,x:b3,leftshoulder:b4,rightshoulder:b5,dpdown:b6,dpleft:b7,dpup:b8,dpright:b9,back:b10,start:b11,leftx:a0,lefty:a1,rightx:a2,righty:a3,");
-		SDL_GameControllerAddMapping("50535669746120636f6e74726f6c6c65,PSVita controller 3,y:b0,b:b1,a:b2,x:b3,leftshoulder:b4,rightshoulder:b5,dpdown:b6,dpleft:b7,dpup:b8,dpright:b9,back:b10,start:b11,leftx:a0,lefty:a1,rightx:a2,righty:a3,");
-		SDL_GameControllerAddMapping("50535669746120636f6e74726f6c6c65,PSVita controller 4,y:b0,b:b1,a:b2,x:b3,leftshoulder:b4,rightshoulder:b5,dpdown:b6,dpleft:b7,dpup:b8,dpright:b9,back:b10,start:b11,leftx:a0,lefty:a1,rightx:a2,righty:a3,");
-		SDL_GameControllerAddMapping("505356697461206275696c74696e206a,PSVita builtin joypad,y:b0,b:b1,a:b2,x:b3,leftshoulder:b4,rightshoulder:b5,dpdown:b6,dpleft:b7,dpup:b8,dpright:b9,back:b10,start:b11,leftx:a0,lefty:a1,rightx:a2,righty:a3,");
-	#endif
+	std::string file = app->gameFolder + "/gamecontrollerdb.txt";
+
+	SDL_GameControllerAddMappingsFromFile(file.c_str());
 
 	/*camera.x = 0;
 	camera.y = 0;
@@ -122,17 +117,8 @@ void Game::Update(AppState& state) {
 }
 
 void Game::HandleEvent(SDL_Event& event) {
-	if(gameController) {
-		if(SDL_GameControllerGetButton(gameController, SDL_CONTROLLER_BUTTON_START) == 1) {
-			if(gameState == GameState::Paused) {
-				gameState = GameState::Running;
-				SDL_ShowCursor(SDL_DISABLE);
-			} else {
-				gameState = GameState::Paused;
-				SDL_ShowCursor(SDL_ENABLE);
-			}
-		}
-		if(SDL_GameControllerGetButton(gameController, SDL_CONTROLLER_BUTTON_Y) == 1) {
+	if(event.type == SDL_CONTROLLERBUTTONDOWN) {
+		if(event.cbutton.button == SDL_CONTROLLER_BUTTON_Y) {
 			if(gameState == GameState::Inventory) {
 				gameState = GameState::Running;
 				SDL_ShowCursor(SDL_DISABLE);
@@ -140,9 +126,20 @@ void Game::HandleEvent(SDL_Event& event) {
 				gameState = GameState::Inventory;
 				SDL_ShowCursor(SDL_ENABLE);
 			}
+		} else if(event.cbutton.button == SDL_CONTROLLER_BUTTON_START) {
+			if(gameState == GameState::Paused) {
+				gameState = GameState::Running;
+				SDL_ShowCursor(SDL_DISABLE);
+			} else {
+				gameState = GameState::Paused;
+				SDL_ShowCursor(SDL_ENABLE);
+			}
+		} else if(event.cbutton.button == SDL_CONTROLLER_BUTTON_LEFTSHOULDER) {
+			PlaceBlock();
+		} else if(event.cbutton.button == SDL_CONTROLLER_BUTTON_RIGHTSHOULDER) {
+			DeleteBlock();
 		}
 	}
-
 	switch (gameState) {
 		case GameState::Paused: {
 			pauseMenu.HandleEvent(event);
@@ -240,23 +237,37 @@ void Game::HandleEvent(SDL_Event& event) {
 				    }
 				    break;
 				}
-				case SDL_JOYAXISMOTION: {
-					if(event.jaxis.which == 0) {
-						if(event.jaxis.axis == 0 ) {
-							if(event.jaxis.value < -4000) {
+				case SDL_CONTROLLERAXISMOTION: {
+					if(event.caxis.which == 0) {
+						if(event.caxis.axis == 0 ) {
+							if(event.caxis.value < -4000) {
 								xHeldDown = -1;
-							} else if(event.jaxis.value > 4000) {
+							} else if(event.caxis.value > 4000) {
 								xHeldDown = 1;
 							} else {
 								xHeldDown = 0;
 							}
-						} else if(event.jaxis.axis == 1) {
-							if(event.jaxis.value < -4000) {
+						} else if(event.caxis.axis == 1) {
+							if(event.caxis.value < -4000) {
 								yHeldDown = -1;
-							} else if( event.jaxis.value > 4000) {
+							} else if( event.caxis.value > 4000) {
 								yHeldDown = 1;
 							} else {
 								yHeldDown = 0;
+							}
+						}
+					} else if(event.caxis.which == 1) { // THIS IS ALWAYS 0 !! HELPLPLLP!lp!lp!!lp!lp!lp!lplp!
+						if(event.caxis.axis == 0) {
+							if(event.caxis.value < -4000) {
+								mousePosition.x -= 10;
+							} else if(event.caxis.value > 4000) {
+								mousePosition.x += 10;
+							}
+						} else if(event.caxis.axis == 1) {
+							if(event.caxis.value < -4000) {
+								mousePosition.y -= 10;
+							} else if( event.caxis.value > 4000) {
+								mousePosition.y += 10;
 							}
 						}
 					}

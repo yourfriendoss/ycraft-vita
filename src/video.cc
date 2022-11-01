@@ -4,10 +4,14 @@
 #include "game.hh"
 
 void VideoComponents::Init() {
-	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_JOYSTICK ) < 0) {
+	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO ) < 0) {
 		Util::Error("Failed to initialise SDL: %s\n", SDL_GetError());
 	}
 
+	if(SDL_InitSubSystem(SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER) < 0) {
+		Util::Error("Failed to initialise SDL Controller API: %s\n", SDL_GetError());
+	}
+	
     SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl");
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
 

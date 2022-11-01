@@ -291,7 +291,8 @@ void App::DownloadAssets() {
 		"font.ttf", "texpacks/default.png",
 		"music/098761584987960161196106.mp3",
 		"music/Misery_Rope_Here.mp3",
-		"music/Nevertheless_Life_Is_Beautiful.mp3"
+		"music/Nevertheless_Life_Is_Beautiful.mp3",
+		"gamecontrollerdb.txt"
 	};
 	
 	bool needsDownload = false;
