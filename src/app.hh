@@ -31,6 +31,8 @@ class App {
 	public:
 		// variables
 		bool            run;
+		bool 			isDebug;
+		
 		std::string     gameFolder;
 		VideoComponents video;
 		TextComponents  text;

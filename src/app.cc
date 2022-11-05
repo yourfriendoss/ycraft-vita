@@ -81,7 +81,11 @@ void App::Update() {
 	if (!Mix_PlayingMusic() && settings.settings["playMusic"] == "true") {
 		audio.LoadMusic(gameFolder + "/music");
 	}
-
+	if (settings.settings["debugger"] == "true") {
+		isDebug = true;
+	} else {
+		isDebug = false;
+	}
 	// get delta time
 	deltaLast = deltaNow;
 	deltaNow  = SDL_GetPerformanceCounter();

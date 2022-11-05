@@ -286,7 +286,6 @@ void Game::HandleEvent(SDL_Event& event) {
 					}
 
 					if(event.caxis.axis == SDL_CONTROLLER_AXIS_RIGHTX) {
-						Logs::Instance().Log("rghtx %s", SDL_GameControllerMappingForIndex(0));
 						if(event.caxis.value < -4000) {
 							yJoyMouse = -1;
 						} else if(event.caxis.value > 4000) {
@@ -679,10 +678,11 @@ void Game::Render() {
 		{5, 25}, 1, true
 	);
 
-	if(app->settings.settings["debugger"] == "true") {
+	if(app->isDebug) {
 		int size = static_cast<int>(Logs::Instance().logs.size());
+		int minimum = std::min(5,size);
 
-		for(int i = 0; i < std::min(5,size); i++) {
+		for(int i = 0; i < minimum; i++) {
 			app->text.RenderText(
 				app->video.renderer,
 				Logs::Instance().logs[size-(i+1)],
