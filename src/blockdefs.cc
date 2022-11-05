@@ -9,5 +9,5 @@ void Blockdefs::Create(
 	blockID_t id, std::string name, uint32_t textureID, BlockType type
 ) {
 	defs[id] = {name, textureID, type};
-	Util::Log("Created new block %s (%i)", name.c_str(), id);
+	Logs::Instance().Log("Created new block %s (%i)", name.c_str(), id);
 }

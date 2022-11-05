@@ -63,6 +63,6 @@ bool FS::Directory::Exists(std::string dname) {
 
 void FS::Directory::Create(std::string dname) {
 	if (!std::filesystem::create_directory(dname)) {
-		Util::Error("Failed to create directory: %s", dname.c_str());
+		Logs::Instance().Error("Failed to create directory: %s", dname.c_str());
 	}
 }

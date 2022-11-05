@@ -25,16 +25,12 @@ void Game::Init(UVec2 levelSize, bool generate) {
 			if(gameController == NULL) {
 				SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "SDL Error", "Warning: Unable to open game controller! ", nullptr);
 			} else {
-				Util::Log("You are using a controller.");
+				Logs::Instance().Log("You are using a controller.");
 			}
 		} else {
 			SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "SDL Error", "Warning: Game joystick 0 is not a controller!", nullptr);
 		}
 	}
-
-	std::string file = app->gameFolder + "/gamecontrollerdb.txt";
-
-	SDL_GameControllerAddMappingsFromFile(file.c_str());
 
 	/*camera.x = 0;
 	camera.y = 0;
@@ -117,27 +113,57 @@ void Game::Update(AppState& state) {
 }
 
 void Game::HandleEvent(SDL_Event& event) {
-	if(event.type == SDL_CONTROLLERBUTTONDOWN) {
-		if(event.cbutton.button == SDL_CONTROLLER_BUTTON_Y) {
-			if(gameState == GameState::Inventory) {
-				gameState = GameState::Running;
-				SDL_ShowCursor(SDL_DISABLE);
-			} else {
-				gameState = GameState::Inventory;
-				SDL_ShowCursor(SDL_ENABLE);
+	switch(event.type) {
+		case SDL_CONTROLLERBUTTONDOWN: {
+			if(event.cbutton.button == SDL_CONTROLLER_BUTTON_Y) {
+				if(gameState == GameState::Inventory) {
+					gameState = GameState::Running;
+					SDL_ShowCursor(SDL_DISABLE);
+				} else {
+					gameState = GameState::Inventory;
+					SDL_ShowCursor(SDL_ENABLE);
+				}
+			} else if(event.cbutton.button == SDL_CONTROLLER_BUTTON_START) {
+				if(gameState == GameState::Paused) {
+					gameState = GameState::Running;
+					SDL_ShowCursor(SDL_DISABLE);
+				} else {
+					gameState = GameState::Paused;
+					SDL_ShowCursor(SDL_ENABLE);
+				}
+			} else if(event.cbutton.button == SDL_CONTROLLER_BUTTON_LEFTSHOULDER) {
+				PlaceBlock();
+			} else if(event.cbutton.button == SDL_CONTROLLER_BUTTON_RIGHTSHOULDER) {
+				DeleteBlock();
+			} else if(event.cbutton.button == SDL_CONTROLLER_BUTTON_DPAD_LEFT) {
+				if (player.inventory.hotbarSelection == 0) {
+					player.inventory.hotbarSelection =
+						player.inventory.Hotbar().size() - 1;
+				}
+				else {
+					-- player.inventory.hotbarSelection;
+				}
+			} else if(event.cbutton.button == SDL_CONTROLLER_BUTTON_DPAD_RIGHT) {
+				player.inventory.hotbarSelection =
+					(player.inventory.hotbarSelection + 1) %
+					player.inventory.Hotbar().size();
 			}
-		} else if(event.cbutton.button == SDL_CONTROLLER_BUTTON_START) {
-			if(gameState == GameState::Paused) {
-				gameState = GameState::Running;
-				SDL_ShowCursor(SDL_DISABLE);
+			break;
+		}
+		case SDL_CONTROLLERDEVICEREMOVED: {
+			SDL_GameControllerClose(gameController);
+			gameController = NULL;
+			break;
+		}
+		case SDL_CONTROLLERDEVICEADDED: {
+			gameController = SDL_GameControllerOpen(0); 
+
+			if(gameController == NULL) {
+				SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "SDL Error", "Warning: Unable to open game controller! ", nullptr);
 			} else {
-				gameState = GameState::Paused;
-				SDL_ShowCursor(SDL_ENABLE);
+				Logs::Instance().Log("You are using a controller.");
 			}
-		} else if(event.cbutton.button == SDL_CONTROLLER_BUTTON_LEFTSHOULDER) {
-			PlaceBlock();
-		} else if(event.cbutton.button == SDL_CONTROLLER_BUTTON_RIGHTSHOULDER) {
-			DeleteBlock();
+			break;
 		}
 	}
 	switch (gameState) {
@@ -153,7 +179,7 @@ void Game::HandleEvent(SDL_Event& event) {
 					break;
 				}
 				case SDL_FINGERMOTION: {
-					#ifdef __vita__
+					#if defined(PLATFORM_VITA)
 						if(event.tfinger.touchId != 0) return;
 					#endif
 					heldDownFor++;
@@ -176,17 +202,18 @@ void Game::HandleEvent(SDL_Event& event) {
 					break;
 				}
 				case SDL_FINGERDOWN: {
-					#ifdef __vita__
+					#if defined(PLATFORM_VITA)
 						if(event.tfinger.touchId != 0) return;
 					#endif
+					heldDownFor++;
 					mouseDown = true;
 				}
 				case SDL_FINGERUP: {
-					#ifdef __vita__
+					#if defined(PLATFORM_VITA)
 						if(event.tfinger.touchId != 0) return;
 					#endif
 					mouseDown = false;
-					if(heldDownFor > 100) {
+					if(heldDownFor > 50) {
 						DeleteBlock();
 					} else {
 						PlaceBlock();
@@ -217,60 +244,67 @@ void Game::HandleEvent(SDL_Event& event) {
 					break;
 				}
 				case SDL_KEYUP: {
-				    switch (event.key.keysym.scancode) {
-				        case SDL_SCANCODE_ESCAPE: {
-				            gameState = GameState::Paused;
-				            SDL_ShowCursor(SDL_ENABLE);
-				            break;
-				        }
-				        case SDL_SCANCODE_T: {
-				        	gameState       = GameState::InChat;
-				        	chatbox.focused = true;
-				        	break;
-				        }
-				        case SDL_SCANCODE_E: {
-				        	gameState = GameState::Inventory;
-				        	SDL_ShowCursor(SDL_ENABLE);
-				        	break;
-				        }
-				        default: break;
-				    }
-				    break;
-				}
-				case SDL_CONTROLLERAXISMOTION: {
-					if(event.caxis.which == 0) {
-						if(event.caxis.axis == 0 ) {
-							if(event.caxis.value < -4000) {
-								xHeldDown = -1;
-							} else if(event.caxis.value > 4000) {
-								xHeldDown = 1;
-							} else {
-								xHeldDown = 0;
-							}
-						} else if(event.caxis.axis == 1) {
-							if(event.caxis.value < -4000) {
-								yHeldDown = -1;
-							} else if( event.caxis.value > 4000) {
-								yHeldDown = 1;
-							} else {
-								yHeldDown = 0;
-							}
+					switch (event.key.keysym.scancode) {
+						case SDL_SCANCODE_ESCAPE: {
+							gameState = GameState::Paused;
+							SDL_ShowCursor(SDL_ENABLE);
+							break;
 						}
-					} else if(event.caxis.which == 1) { // THIS IS ALWAYS 0 !! HELPLPLLP!lp!lp!!lp!lp!lp!lplp!
-						if(event.caxis.axis == 0) {
-							if(event.caxis.value < -4000) {
-								mousePosition.x -= 10;
-							} else if(event.caxis.value > 4000) {
-								mousePosition.x += 10;
-							}
-						} else if(event.caxis.axis == 1) {
-							if(event.caxis.value < -4000) {
-								mousePosition.y -= 10;
-							} else if( event.caxis.value > 4000) {
-								mousePosition.y += 10;
-							}
+						case SDL_SCANCODE_T: {
+							gameState       = GameState::InChat;
+							chatbox.focused = true;
+							break;
+						}
+						case SDL_SCANCODE_E: {
+							gameState = GameState::Inventory;
+							SDL_ShowCursor(SDL_ENABLE);
+							break;
+						}
+						default: break;
+					}
+					break;
+				}
+				case SDL_JOYAXISMOTION: {
+					if(event.caxis.axis == SDL_CONTROLLER_AXIS_LEFTX) {
+						if(event.caxis.value < -4000) {
+							xMovement = -1;
+						} else if(event.caxis.value > 4000) {
+							xMovement = 1;
+						} else {
+							xMovement = 0;
+						}
+					}  
+
+					if(event.caxis.axis == SDL_CONTROLLER_AXIS_LEFTY) {
+						if(event.caxis.value < -4000) {
+							yMovement = -1;
+						} else if( event.caxis.value > 4000) {
+							yMovement = 1;
+						} else {
+							yMovement = 0;
 						}
 					}
+
+					if(event.caxis.axis == SDL_CONTROLLER_AXIS_RIGHTX) {
+						Logs::Instance().Log("rghtx %s", SDL_GameControllerMappingForIndex(0));
+						if(event.caxis.value < -4000) {
+							yJoyMouse = -1;
+						} else if(event.caxis.value > 4000) {
+							yJoyMouse = 1;
+						} else {
+							yJoyMouse = 0;
+						}
+					}
+					
+					if(event.caxis.axis == SDL_CONTROLLER_AXIS_RIGHTY) {
+						if(event.caxis.value < -4000) {
+							xJoyMouse = -1;
+						} else if( event.caxis.value > 4000) {
+							xJoyMouse = 1;
+						} else {
+							xJoyMouse = 0;
+						}
+					}	
 				}
 			}
 			break;
@@ -368,26 +402,34 @@ void Game::HandleInput(const Uint8* keystate, double delta) {
 		player.EdgeCollision(level);
 		UpdateCamera();
 	}
-	if(yHeldDown == -1) {
+
+	if(yMovement == -1) {
 		player.GoUp(app->deltaTime, GAME_PLAYER_SPEED, level, blockdefs);
 		player.EdgeCollision(level);
 		UpdateCamera();
 	}
-	if(yHeldDown == 1) {
+	if(yMovement == 1) {
 		player.GoDown(app->deltaTime, GAME_PLAYER_SPEED, level, blockdefs);
 		player.EdgeCollision(level);
 		UpdateCamera();
 	}
-	if(xHeldDown == 1) {
+	if(xMovement == 1) {
 		player.GoRight(app->deltaTime, GAME_PLAYER_SPEED, level, blockdefs);
 		player.EdgeCollision(level);
 		UpdateCamera();
 	}
-	if(xHeldDown == -1) {
+	if(xMovement == -1) {
 		player.GoLeft(app->deltaTime, GAME_PLAYER_SPEED, level, blockdefs);
 		player.EdgeCollision(level);
 		UpdateCamera();
 	}
+
+	if(yJoyMouse == -1) mousePosition.y -= 1;
+	if(yJoyMouse == 1) mousePosition.y += 1;
+
+	if(xJoyMouse == -1) mousePosition.x -= 1;
+	if(xJoyMouse == 1) mousePosition.x += 1;
+
 	player.Update();
 
 	if (keystate[SDL_SCANCODE_1]) player.inventory.hotbarSelection = 0;
@@ -636,6 +678,19 @@ void Game::Render() {
 			std::to_string(player.position.y) + ")",
 		{5, 25}, 1, true
 	);
+
+	if(app->settings.settings["debugger"] == "true") {
+		int size = static_cast<int>(Logs::Instance().logs.size());
+
+		for(int i = 0; i < std::min(5,size); i++) {
+			app->text.RenderText(
+				app->video.renderer,
+				Logs::Instance().logs[size-(i+1)],
+				{5, (int)((25*2)+i*20)}, 1, true
+			);   
+		}
+	}
+
 
 	if (gameState == GameState::InChat) {
 		chatbox.Render(app->video.renderer, app->text);

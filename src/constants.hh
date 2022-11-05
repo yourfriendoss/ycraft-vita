@@ -4,9 +4,9 @@
 #define APP_NAME          "ycraft"
 #define APP_VERSION       "d0.0.1"
 #define APP_AUTHOR        "MESYETI"
-#define APP_RESOURCES_URL "http://server4.mesyeti.uk/ycraft/d0.0.1/" // VITA: setting up HTTPS is painful so I'm not doing it. rofllmfaoo
+#define APP_RESOURCES_URL "https://server4.mesyeti.uk/ycraft/d0.0.1/"
 
-#ifdef __vita__
+#if defined(PLATFORM_VITA)
     #define APP_SCREEN_SIZE_W 960
     #define APP_SCREEN_SIZE_H 544
 #else

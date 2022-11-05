@@ -4,7 +4,7 @@
 void ImageComponents::Init() {
 	int flags = IMG_INIT_PNG;
 	if (IMG_Init(flags) != flags) {
-		Util::Error("Failed to initialise SDL_image");
+		Logs::Instance().Error("Failed to initialise SDL_image");
 	}
 }
 

@@ -22,7 +22,7 @@ void MenuBase::HandleEvent(SDL_Event& event) {
 			break;
 		}
 		case SDL_FINGERMOTION: {
-			#ifdef __vita__
+			#if defined(PLATFORM_VITA)
 				if(event.tfinger.touchId != 0) return;
 			#endif
 			mousePosition.x = event.tfinger.x * APP_SCREEN_SIZE_W;
@@ -30,14 +30,14 @@ void MenuBase::HandleEvent(SDL_Event& event) {
             break;
         }
         case SDL_FINGERDOWN: {
-			#ifdef __vita__
+			#if defined(PLATFORM_VITA)
 				if(event.tfinger.touchId != 0) return;
 			#endif
             mousePressed = true; 
 			break;
         }
         case SDL_FINGERUP: {
-			#ifdef __vita__
+			#if defined(PLATFORM_VITA)
 				if(event.tfinger.touchId != 0) return;
 			#endif
             mousePressed = false;

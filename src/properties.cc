@@ -31,7 +31,7 @@ void Properties::Parse(const std::string& str) {
 	}
 
 	if (tokens.size() % 3 != 0) {
-		Util::Error(
+		Logs::Instance().Error(
 			"Missing tokens around line %lli", (long long int) tokens.back().line
 		);
 	}
@@ -46,20 +46,20 @@ void Properties::Parse(const std::string& str) {
 					Get(key) = tokens[i].content;
 				}
 				else {
-					Util::Error(
+					Logs::Instance().Error(
 						"Expected value at line %lli\n",
 						(long long int) tokens[i].line
 					);
 				}
 			}
 			else {
-				Util::Error(
+				Logs::Instance().Error(
 					"Expected equals at line %lli\n", (long long int) tokens[i].line
 				);
 			}
 		}
 		else {
-			Util::Error(
+			Logs::Instance().Error(
 				"Expected key at line %lli", (long long int) tokens[i].line
 			);
 			exit(EXIT_FAILURE);

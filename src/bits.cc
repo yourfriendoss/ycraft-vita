@@ -10,7 +10,7 @@ std::vector <uint8_t> Bits::Split16(uint16_t integer) {
 
 uint16_t Bits::Join16(std::vector <uint8_t> bytes) {
 	if (bytes.size() != 2) {
-		Util::Error(
+		Logs::Instance().Error(
 			"Bytes::Join16, invalid amount of bytes (given %lli)",
 			(long long int) bytes.size()
 		);
@@ -29,7 +29,7 @@ std::vector <uint8_t> Bits::Split32(uint32_t integer) {
 
 uint32_t Bits::Join32(std::vector <uint8_t> bytes) {
 	if (bytes.size() != 4) {
-		Util::Error(
+		Logs::Instance().Error(
 			"Bytes::Join32, invalid amount of bytes (given %lli)",
 			(long long int) bytes.size()
 		);

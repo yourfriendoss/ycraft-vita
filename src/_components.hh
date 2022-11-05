@@ -10,6 +10,8 @@
 	#define PLATFORM_LINUX
 #elif defined(__unix__)
 	#define PLATFORM_UNIX
+#elif defined(__vita__)
+	#define PLATFORM_VITA
 #endif
 
 // C standard headers
@@ -37,9 +39,7 @@
 #include <filesystem>
 #include <unordered_map>
 
-#ifndef __vita__
-	#include <curl/curl.h>
-#endif
+#include <curl/curl.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_image.h>

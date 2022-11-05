@@ -39,11 +39,18 @@ Menus::SettingsMenu::SettingsMenu():
 	musicCheckbox.size.x     = 8;
 	musicCheckbox.size.y     = 9;
 	musicCheckbox.colour     = Colours::white;
+
+	debuggingCheckbox.position.x = 14;
+	debuggingCheckbox.position.y = 115;
+	debuggingCheckbox.size.x     = 8;
+	debuggingCheckbox.size.y     = 9;
+	debuggingCheckbox.colour     = Colours::white;
 }
 
 void Menus::SettingsMenu::Init() {
 	fullscreenCheckbox.activated = settings->settings["fullscreen"] == "true";
 	musicCheckbox.activated      = settings->settings["playMusic"] == "true";
+	debuggingCheckbox.activated  = settings->settings["debugger"] == "true";
 }
 
 bool Menus::SettingsMenu::Update(AppState& state) {
@@ -76,6 +83,13 @@ bool Menus::SettingsMenu::Update(AppState& state) {
 		mousePressed                     = false;
 		settings->settings["playMusic"] =
 			musicCheckbox.activated? "true" : "false";
+		return true;
+	}
+	if (mousePressed && debuggingCheckbox.MouseIsOver(mousePosition)) {
+		debuggingCheckbox.activated     = !debuggingCheckbox.activated;
+		mousePressed                     = false;
+		settings->settings["debugger"] =
+			debuggingCheckbox.activated? "true" : "false";
 		return true;
 	}
 	if (mousePressed && texturePacksButton.MouseIsOver(mousePosition)) {
@@ -132,6 +146,12 @@ void Menus::SettingsMenu::Render(SDL_Renderer* renderer, TextComponents& text) {
 	text.RenderText(
 		renderer, "Play music",
 		{musicCheckbox.position.x + 12, musicCheckbox.position.y - 3},
+		1.0, true
+	);
+	debuggingCheckbox.Render(renderer);
+	text.RenderText(
+		renderer, "Debugging messages",
+		{debuggingCheckbox.position.x + 12, debuggingCheckbox.position.y - 3},
 		1.0, true
 	);
 }

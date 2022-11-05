@@ -9,7 +9,8 @@ void SettingsManager::Load(std::string gamePath) {
 			settingsPath,
 			"fullscreen = false\n"
 			"texturePack = default.png\n"
-			"playMusic = true"
+			"playMusic = true\n"
+			"debugger = false"
 		);
 	}
 	settings.Parse(FS::File::Read(settingsPath));

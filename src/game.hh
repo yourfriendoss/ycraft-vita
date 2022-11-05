@@ -46,9 +46,11 @@ class Game {
 		InventoryScreen        inventoryScreen;
 		
 		SDL_GameController *   gameController;
-		int  		 		   xHeldDown = 0;
-		int  		 		   yHeldDown = 0;
-			
+		int  		 		   xMovement = 0;
+		int  		 		   yMovement = 0;
+		int 				   xJoyMouse = 0;
+		int 				   yJoyMouse = 0;
+		
 		// functions
 		Game();
 		void Init(UVec2 levelSize, bool generate);

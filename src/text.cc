@@ -8,12 +8,12 @@ TextComponents::TextComponents() {
 
 void TextComponents::Init(std::string fontPath) {
 	if (TTF_Init() == -1) {
-		Util::Error("Failed to initialise SDL_ttf: %s", TTF_GetError());
+		Logs::Instance().Error("Failed to initialise SDL_ttf: %s", TTF_GetError());
 	}
 
 	font = TTF_OpenFont(fontPath.c_str(), 16);
 	if (font == nullptr) {
-		Util::Error("Failed to open font: %s", TTF_GetError());
+		Logs::Instance().Error("Failed to open font: %s", TTF_GetError());
 	}
 }
 
@@ -43,7 +43,7 @@ void TextComponents::RenderText(
 
 	textSurface = TTF_RenderText_Solid(font, text.c_str(), colour);
 	if (textSurface == nullptr) {
-		Util::Error("TTF_RenderText_Solid error: %s", TTF_GetError());
+		Logs::Instance().Error("TTF_RenderText_Solid error: %s", TTF_GetError());
 	}
 	textRect = {
 		pos.x, pos.y, 
@@ -56,7 +56,7 @@ void TextComponents::RenderText(
 	textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
 
 	if (textTexture == nullptr) {
-		Util::Error("SDL_CreateTextureFromSurface returned NULL: %s\n", SDL_GetError());
+		Logs::Instance().Error("SDL_CreateTextureFromSurface returned NULL: %s\n", SDL_GetError());
 	}
 
 	SDL_RenderCopy(renderer, textTexture, nullptr, &textRect);
@@ -73,7 +73,7 @@ void TextComponents::RenderText(
 		textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
 
 		if (textTexture == nullptr) {
-			Util::Error(
+			Logs::Instance().Error(
 			"SDL_CreateTextureFromSurface returned NULL: %s\n",
 				SDL_GetError()
 			);
@@ -97,7 +97,7 @@ Vec2 TextComponents::GetTextSize(std::string text, float size) {
 
 	textSurface = TTF_RenderText_Solid(font, text.c_str(), colour);
 	if (textSurface == nullptr) {
-		Util::Error("TTF_RenderText_Solid returned NULL: %s", TTF_GetError());
+		Logs::Instance().Error("TTF_RenderText_Solid returned NULL: %s", TTF_GetError());
 	}
 	textRect = {
 		0, 0,

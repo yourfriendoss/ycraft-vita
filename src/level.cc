@@ -127,7 +127,7 @@ void Level::LoadFromRawLayerData(
 void Level::LoadLevel(std::string path) {
 	std::ifstream fhnd(path, std::ios::out | std::ios::binary);
 	if (!fhnd.good()) {
-		Util::Error("Failed to open %s", path.c_str());
+		Logs::Instance().Error("Failed to open %s", path.c_str());
 	}
 	RawLevelData data;
 
@@ -212,7 +212,7 @@ void Level::LoadLevel(std::string path) {
 void Level::SaveLevel(std::string path) {
 	std::ofstream fhnd(path, std::ios::out | std::ios::binary);
 	if (!fhnd.good()) {
-		Util::Error("Failed to open %s", path.c_str());
+		Logs::Instance().Error("Failed to open %s", path.c_str());
 	}
 
 	RawLevelData rawData = GetRawData();

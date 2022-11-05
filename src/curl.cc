@@ -1,48 +1,33 @@
-#ifdef __vita__
+#include "util.hh"
+#include "curl.hh"
+
+#if defined(PLATFORM_VITA)
 	#include <psp2/net/net.h>
 	#include <psp2/net/netctl.h>
 	#include <psp2/net/http.h>
 	#include <psp2/io/fcntl.h> 
-
 	#include <psp2/sysmodule.h>
 #endif
 
-#include "util.hh"
-#include "curl.hh"
 
-#ifndef __vita__
-	// write function
-	size_t CurlWriteFunction(char* buf, size_t size, size_t nmemb, void* userp) {
+// write function
+size_t CurlWriteFunction(char* buf, size_t size, size_t nmemb, void* userp) {
+	#if !defined(PLATFORM_VITA)
 		auto fstream = static_cast <std::ofstream*>(userp);
 		fstream->write(buf, nmemb * size);
 		return nmemb * size;
-	}
-#endif
+	#else
+		size_t written = sceIoWrite(*(int*) userp, buf ,size*nmemb);
+  		return written;
+	#endif
+}
 
-#ifdef __vita__
-	CurlComponents::CurlComponents() {
+CurlComponents::CurlComponents(): handle(nullptr) {
 
-	}
-#else
-	CurlComponents::CurlComponents(): handle(nullptr) {
-
-	}
-#endif
+}
 
 void CurlComponents::Init() {
-	#ifndef __vita__
-		if (curl_global_init(CURL_GLOBAL_ALL) != 0) {
-			Util::Error("curl_global_init failed");
-		}
-
-		handle = curl_easy_init();
-		if (!handle) {
-			Util::Error("curl_easy_init returned NULL");
-		}
-		Util::Log("Initialised libcurl");
-
-	#else
-		// VITA: Start modules
+	#if defined(PLATFORM_VITA)
 		sceSysmoduleLoadModule(SCE_SYSMODULE_NET);
 		
 		SceNetInitParam netInitParam;
@@ -58,14 +43,21 @@ void CurlComponents::Init() {
 
 		sceHttpInit(1*1024*1024);
 	#endif
+
+	if (curl_global_init(CURL_GLOBAL_ALL) != 0) {
+		Logs::Instance().Error("curl_global_init failed");
+	}
+
+	handle = curl_easy_init();
+	if (!handle) {
+		Logs::Instance().Error("curl_easy_init returned NULL");
+	}
+	Logs::Instance().Log("Initialised libcurl");
+
 }
 
 void CurlComponents::Free() {
-	#ifndef __vita__
-		curl_easy_cleanup(handle);
-		curl_global_cleanup();
-		Util::Log("Cleaned up libcurl");
-	#else
+	#if defined(PLATFORM_VITA)
 		// VITA: Terminate both the NET and HTTP modules
 		sceNetCtlTerm();
 		sceNetTerm();
@@ -74,43 +66,45 @@ void CurlComponents::Free() {
 		sceHttpTerm();
 		sceSysmoduleUnloadModule(SCE_SYSMODULE_HTTP);
 	#endif
+
+	curl_easy_cleanup(handle);
+	curl_global_cleanup();
+	Logs::Instance().Log("Cleaned up libcurl");
 }
 
 void CurlComponents::Download(std::string url, std::string whereTo) {
-	#ifndef __vita__
-		std::ofstream fhnd(whereTo);
-		std::string   corrected = Util::CorrectURL(url);
-
-		curl_easy_reset(handle);
-		curl_easy_setopt(handle, CURLOPT_URL,           Util::CorrectURL(url).c_str());
-		curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, CurlWriteFunction);
-		curl_easy_setopt(handle, CURLOPT_WRITEDATA,     &fhnd);
-		curl_easy_setopt(handle, CURLOPT_FAILONERROR,   true);
-
-		auto rc = curl_easy_perform(handle);
-		if (rc != CURLE_OK) {
-			Util::Error(
-				"curl_easy_perform failed: %s\nURL: %s",
-				curl_easy_strerror(rc), Util::CorrectURL(url).c_str()
-			);
-		}
-		Util::Log("Downloaded to %s", whereTo.c_str());
+	#if defined(PLATFORM_VITA)
+		int fhnd = sceIoOpen(whereTo.c_str(), SCE_O_WRONLY | SCE_O_CREAT, 0777);
 	#else
-		int tpl = sceHttpCreateTemplate("ycraft-vita (Mozilla/5.0)", 1, 1);
-		int conn = sceHttpCreateConnectionWithURL(tpl, url.c_str(), 0);
+		std::ofstream fhnd(whereTo);
+	#endif
 
-		int request = sceHttpCreateRequestWithURL(conn, SCE_HTTP_METHOD_GET, url.c_str(), 0);
+	std::string   corrected = Util::CorrectURL(url);
 
-		int handle = sceHttpSendRequest(request, NULL, 0);
-		int fh = sceIoOpen(whereTo.c_str(), SCE_O_WRONLY | SCE_O_CREAT, 0777);
+	curl_easy_reset(handle);
+	curl_easy_setopt(handle, CURLOPT_URL,           Util::CorrectURL(url).c_str());
+	curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, CurlWriteFunction);
+	curl_easy_setopt(handle, CURLOPT_WRITEDATA,     &fhnd);
+	curl_easy_setopt(handle, CURLOPT_FAILONERROR,   true);
+	curl_easy_setopt(handle, CURLOPT_SSL_VERIFYHOST, 0L);
+	curl_easy_setopt(handle, CURLOPT_SSL_VERIFYPEER, 0L);
+	curl_easy_setopt(handle, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_2);
+	curl_easy_setopt(handle, CURLOPT_CONNECTTIMEOUT, 10L);
+	curl_easy_setopt(handle, CURLOPT_FOLLOWLOCATION, 1L);
 
-		unsigned char data[16*1024];
-		int read = 0;
+	auto rc = curl_easy_perform(handle);
+	if (rc != CURLE_OK) {
+		Logs::Instance().Error(
+			"curl_easy_perform failed: %s\nURL: %s",
+			curl_easy_strerror(rc), Util::CorrectURL(url).c_str()
+		);
+	}
+	
+	Logs::Instance().Log("Downloaded to %s", whereTo.c_str());
 
-		while ((read = sceHttpReadData(request, &data, sizeof(data))) > 0) {
-			int write = sceIoWrite(fh, data, read);
-		}
-
-		sceIoClose(fh);
+	#if defined(PLATFORM_VITA)
+		sceIoClose(fhnd);
+	#else
+		fhnd.close();
 	#endif
 }

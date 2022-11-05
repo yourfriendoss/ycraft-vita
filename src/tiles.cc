@@ -13,7 +13,7 @@ void TileSheet::Init(SDL_Renderer* renderer, std::string path, uint32_t p_tileSi
 	SDL_SetTextureBlendMode(image, SDL_BLENDMODE_BLEND);
 
 	if (image == nullptr) {
-		Util::Error("IMG_LoadTexture returned NULL: %s", IMG_GetError());
+		Logs::Instance().Error("IMG_LoadTexture returned NULL: %s", IMG_GetError());
 		exit(EXIT_FAILURE);
 	}
 }

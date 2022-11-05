@@ -15,13 +15,7 @@ cd vita
 cmake ..
 make
 ```
-and you will get a file called `ycraft-vita.vpk`, move it to `ux0:VPK/` with vitashell FTP, and run it from vitashell. also create a folder called `ux0:data/ycraft`
-
-## todo / known bugs (psvita) 
-1. write better testing (currently i move the file manually to my psvita and it is a fucking pain)
-2. stop using `__vita__` everywhere and switch to a `#if defined(VITA)` version
-3. use HTTPS in curl.cc for psvita (a pain and also requries itls for most of the time)
-4. the touch break-place logic is broken
+and you will get a file called `ycraft-vita.vpk`, move it to `ux0:VPK/` with vitashell FTP, and run it from vitashell.
 
 ## dependencies
 SDL2, SDL2_ttf, SDL2_image, SDL2_mixer, libcurl
@@ -52,4 +46,4 @@ e - open/close inventory
 <img src="/img/screenshot.png">
 
 ## known bugs
-none rn
+1. (PC & XBOX CONTROLLER ONLY) moving the joystick for mouse is kind of broken, idk wtf's wrong with it, it seems to be missing whole 3 axis from the 2nd joystick, it launches onto LT on the xbox one controller instead also is recognized as "8BitDo FC30 Pro".. so fucking weird idk

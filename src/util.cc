@@ -13,7 +13,13 @@ std::string Util::CurrentTime() {
 	return std::string(buffer);
 }
 
-void Util::Log(const char* format, ...) { // most of this is taken from vsprintf(3)
+Logs& Logs::Instance() {
+  static Logs instance;
+
+  return instance;
+}
+
+void Logs::Log(const char* format, ...) { // most of this is taken from vsprintf(3)
 	int    n = 0;
 	size_t size = 0;
 	char*  ret = nullptr;
@@ -43,14 +49,15 @@ void Util::Log(const char* format, ...) { // most of this is taken from vsprintf
 		free(ret);
 	    return;
 	}
-	
-	printf("[%s] %s\n", CurrentTime().c_str(), ret);
+	logs.push_back(ret);
+	printf("[%s] %s\n", Util::CurrentTime().c_str(), ret);
 	free(ret);
 }
 
+
 std::string Util::GetExecutableLocation() {
 	char buffer[1024];
-	#ifdef __vita__
+	#if defined(PLATFORM_VITA)
 		return "ux0:/data/ycraft/";
 	#endif
 	#if defined(PLATFORM_LINUX)
@@ -101,7 +108,7 @@ std::string Util::BaseName(std::string path) {
 	return pos == std::string::npos? path : path.substr(pos + 1);
 }
 
-void Util::Error(const char* format, ...) {
+void Logs::Error(const char* format, ...) {
 	size_t n = 0;
 	size_t size = 0;
 	char*  ret = nullptr;

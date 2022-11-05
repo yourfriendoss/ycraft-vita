@@ -17,11 +17,12 @@ set(VITA_VERSION  "01.00")
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -std=gnu17")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -std=c++17")
-FIND_PACKAGE(SDL2)
+FIND_PACKAGE(SDL2 REQUIRED)
+FIND_PACKAGE(CURL REQUIRED)
+FIND_PACKAGE(OpenSSL REQUIRED)
 
 file(GLOB ycraft_src CONFIGURE_DEPENDS "src/*.cc")
 add_executable(${PROJECT_NAME} ${ycraft_src})
-
 
 target_link_libraries(${PROJECT_NAME}
     SDL2_mixer
@@ -40,6 +41,8 @@ target_link_libraries(${PROJECT_NAME}
     jpeg
     webp
     pthread
+    ${CURL_LIBRARIES}
+    ${OPENSSL_LIBRARIES}
     z
     m
     ScePower_stub
@@ -58,6 +61,7 @@ target_link_libraries(${PROJECT_NAME}
 )
 
 vita_create_self(${PROJECT_NAME}.self ${PROJECT_NAME})
+
 vita_create_vpk(${PROJECT_NAME}.vpk ${VITA_TITLEID} ${PROJECT_NAME}.self
   VERSION ${VITA_VERSION}
   NAME ${VITA_APP_NAME}

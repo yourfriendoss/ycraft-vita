@@ -42,7 +42,7 @@ void CommandsSystem::AddCommand(
 	std::string name, CommandCallback callback, std::vector <std::string> help
 ) {
 	commands.push_back({name, callback, help});
-	Util::Log("Registered command %s", name.c_str());
+	Logs::Instance().Log("Registered command %s", name.c_str());
 }
 
 void CommandsSystem::RunCommand(std::string name, std::vector <std::string> arguments) {
@@ -70,6 +70,6 @@ Command CommandsSystem::GetCommand(std::string name) {
 		}
 	}
 
-	Util::Error("Failed to get command %s", name.c_str());
+	Logs::Instance().Error("Failed to get command %s", name.c_str());
 	return {"", nullptr, {}};
 }

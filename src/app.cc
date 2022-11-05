@@ -8,12 +8,12 @@ App::App():
 	run(true),
 	gameFolder(Util::DirName(Util::GetExecutableLocation()))
 {
-	Util::Log("Welcome to " APP_NAME);
+	Logs::Instance().Log("Welcome to " APP_NAME);
 
 	srand(time(nullptr));
 
 	if (Util::GetExecutableLocation() == "") {
-		Util::Error(APP_NAME " can't run on your system");
+		Logs::Instance().Error(APP_NAME " can't run on your system");
 	}
 	
 	if (!FS::Directory::Exists(gameFolder)) {
@@ -24,12 +24,12 @@ App::App():
 	deltaNow   = SDL_GetPerformanceCounter();
 	state      = AppState::TitleScreen;
 
-	Util::Log("Found game folder: %s", gameFolder.c_str());
+	Logs::Instance().Log("Found game folder: %s", gameFolder.c_str());
 	
 	curl.Init();
 	SetupGameFiles();
 	DownloadAssets();
-	Util::Log("Set up game files");
+	Logs::Instance().Log("Set up game files");
 	
 	video.Init();
 	text.Init(gameFolder + "/font.ttf");
@@ -59,7 +59,7 @@ App::App():
 
 	SDL_ShowCursor(SDL_DISABLE);
 */
-	Util::Log("Ready");
+	Logs::Instance().Log("Ready");
 }
 
 App::~App() {
@@ -73,7 +73,7 @@ App::~App() {
 	curl.Free();
 	gameTextures.Free();
 
-	Util::Log("Goodbye");
+	Logs::Instance().Log("Goodbye");
 }
 
 void App::Update() {
@@ -288,7 +288,8 @@ void App::SetupGameFiles() {
 
 void App::DownloadAssets() {
 	std::vector <std::string> requiredFiles = {
-		"font.ttf", "texpacks/default.png",
+		"font.ttf", 
+		"texpacks/default.png",
 		"music/098761584987960161196106.mp3",
 		"music/Misery_Rope_Here.mp3",
 		"music/Nevertheless_Life_Is_Beautiful.mp3",
