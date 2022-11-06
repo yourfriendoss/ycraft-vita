@@ -496,6 +496,46 @@ void Game::Render() {
 						GAME_BLOCK_SIZE, GAME_BLOCK_SIZE
 					};
 					SDL_RenderFillRect(app->video.renderer, &shadow);
+										if (
+						(j == 0) ||
+						(
+							blockdefs.defs[level.layers[0].front[i][j - 1]].type ==
+							BlockType::Gas
+						)
+					) {
+						app->video.DrawTriangle(
+							{(float) block.x, (float) block.y + GAME_BLOCK_SIZE},
+							{
+								(float) block.x + GAME_SHADOW_OFFSET,
+								(float) block.y + GAME_BLOCK_SIZE
+							},
+							{
+								(float) block.x + GAME_SHADOW_OFFSET,
+								(float) block.y + GAME_BLOCK_SIZE + GAME_SHADOW_OFFSET
+							},
+							Colours::transparentBlack
+						);
+					}
+					if (
+						(i == 0) ||
+						(
+							blockdefs.defs[level.layers[0].front[i - 1][j]].type ==
+							BlockType::Gas
+						)
+					) {
+						app->video.DrawTriangle(
+							{(float) block.x + GAME_BLOCK_SIZE, (float) block.y},
+							{
+								(float) block.x + GAME_BLOCK_SIZE,
+								(float) block.y + GAME_SHADOW_OFFSET
+							},
+							{
+								(float) block.x + GAME_BLOCK_SIZE + GAME_SHADOW_OFFSET,
+								(float) block.y + GAME_SHADOW_OFFSET
+							},
+							Colours::transparentBlack
+						);
+					}
 					// render texture
 					app->gameTextures.RenderTile(
 						app->video.renderer,

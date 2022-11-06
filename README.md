@@ -22,7 +22,14 @@ SDL2, SDL2_ttf, SDL2_image, SDL2_mixer, libcurl
 
 vitasdk for the vita build
 
-### deps for debian
+### sdl2 autobuild (manual)
+run `sdlautoinstall.sh` inside the repo
+
+basically use this if you get issues about traingle rendering, means that your apt-get / package manager sdl version is a couple years old lmfao
+
+### deps for ubuntu based systems
+**i really reccomend the manual build above!! this will most likely have issues**
+
 ```
 sudo apt-get install libsdl2-dev
 sudo apt-get install libsdl2-image-dev

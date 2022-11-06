@@ -47,7 +47,7 @@ ifeq (${platform}, windows)
 				-L./curl/lib -lmingw32 -static-libgcc -static-libstdc++
 endif
 
-CXXLIBS += -lSDL2main -lSDL2 -lSDL2_ttf -lSDL2_image -lSDL2_mixer -lm -lcurl
+CXXLIBS += $(shell sdl2-config --libs) -lSDL2main -lSDL2_ttf -lSDL2_image -lSDL2_mixer -lm -lcurl
 
 # rules
 compile: ./bin ${OBJ} ${SRC}
