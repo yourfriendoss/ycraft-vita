@@ -11,7 +11,7 @@ void VideoComponents::Init() {
 	if(SDL_InitSubSystem(SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER) < 0) {
 		Logs::Instance().Error("Failed to initialise SDL Controller API: %s\n", SDL_GetError());
 	}
-	
+
     SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl");
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
 
@@ -20,10 +20,18 @@ void VideoComponents::Init() {
 		SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS, "0");
 	#endif
 
+	int w = APP_SCREEN_SIZE_W;
+	int h = APP_SCREEN_SIZE_H;
+
+	#if defined(PLATFORM_VITA)
+		w = 960;
+		h = 554;
+	#endif
+
 	window = SDL_CreateWindow(
 		(std::string(APP_NAME) + " " + APP_VERSION).c_str(),
 		SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-		APP_SCREEN_SIZE_W, APP_SCREEN_SIZE_H,
+		w, h,
 		SDL_WINDOW_RESIZABLE
 	);
 
@@ -31,7 +39,7 @@ void VideoComponents::Init() {
 		Logs::Instance().Error("Failed to create window: %s", SDL_GetError());
 	}
 	Logs::Instance().Log("Created window");
-	
+
 	renderer = SDL_CreateRenderer(
 		window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC
 	);
